@@ -27,6 +27,7 @@ This script starts the jmeter gui and loads the test script.
 A single test plan file is used for maintainablility.  By default, the test plan runs 1 thread in 1 loop and will make a request to the regions endpoint.  The test plan goes as follows:
 
 1.  Create a new region (POST call to `/api/region`)
-2.  Wait until region has finished processing (While loop w/ GET call to `/api/region/{NEW_REGION_ID}`)
-3.  Upload a new GTFS to the new region (POST call to `/api/bundle`)
-4.  Wait until the GTFS has finished processing (While loop w/ GET call to `/api/bundle/{NEW_BUNDLE_ID}`)
+1.  Wait until region has finished processing (While loop w/ GET call to `/api/region/{NEW_REGION_ID}`)
+1.  Upload a new GTFS to the new region (POST call to `/api/bundle`)
+1.  Wait until the GTFS has finished processing (While loop w/ GET call to `/api/bundle/{NEW_BUNDLE_ID}`)
+1.  Create a new project (POST call to `/api/project`)
