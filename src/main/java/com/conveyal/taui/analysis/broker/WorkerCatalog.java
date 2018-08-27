@@ -73,10 +73,15 @@ public class WorkerCatalog {
      */
     private void purgeDeadWorkers () {
         long now = System.currentTimeMillis();
-        long oldestAcceptable = now - WORKER_RECORD_DURATION_MSEC;
+        long expectedCheckInIdle = now - WORKER_RECORD_DURATION_MSEC;
+        long expectedCheckInBusy = expectedCheckInIdle - WORKER_RECORD_DURATION_MSEC;
         List<WorkerObservation> ancientObservations = new ArrayList<>();
         for (WorkerObservation observation : observationsByWorkerId.values()) {
-            if (observation.lastSeen < oldestAcceptable) {
+            if (observation.lastSeen < expectedCheckInIdle && observation.status.loadAverage < 0.8) {
+                // if a worker is not under heavy load, we expect it to check in regularly
+                ancientObservations.add(observation);
+            } else if (observation.lastSeen < expectedCheckInBusy) {
+                // else if hard at work, we give it a bit more leniency in expected check-in
                 ancientObservations.add(observation);
             }
         }
