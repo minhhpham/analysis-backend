@@ -26,8 +26,7 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,17 +53,36 @@ public class BundleController {
             .withRegion(AnalysisServerConfig.awsRegion)
             .build();
 
-    public static Bundle create (Request req, Response res) {
+    public static Bundle create (Request req, Response res) throws IOException {
         ServletFileUpload sfu = new ServletFileUpload(fileItemFactory);
 
         // create the bundle
-        Map<String, List<FileItem>> files;
+        List<FileItem> files = new ArrayList<FileItem>();
+        File fileToUpdload = new File("gtfs.zip");
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+        FileItem retro_file = factory.createItem("retro-gtfs", "application/zip", false, fileToUpdload.getAbsolutePath());
+
+        InputStream input =  new FileInputStream(fileToUpdload.getAbsolutePath());
+        OutputStream os = retro_file.getOutputStream();
+        int ret = input.read();
+        while ( ret != -1 )
+        {
+            os.write(ret);
+            ret = input.read();
+        }
+        os.flush();
+
+        try {
+            retro_file.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        files.add(retro_file);
+
         final Bundle bundle = new Bundle();
         try {
-            files = sfu.parseParameterMap(req.raw());
-
-            bundle.name = files.get("Name").get(0).getString("UTF-8");
-            bundle.regionId = files.get("regionId").get(0).getString("UTF-8");
+            bundle.name = "retro-gtfs";
+            bundle.regionId = "1";
         } catch (Exception e) {
             throw AnalysisServerException.badRequest(ExceptionUtils.asString(e));
         }
@@ -89,7 +107,7 @@ public class BundleController {
 
             Set<String> usedFileNames = new HashSet<>();
 
-            for (FileItem fi : files.get("files")) {
+            for (FileItem fi : files) {
                 // create a unique, safe file name
                 String baseName = fi.getName().replace(".zip", "").replaceAll("[^a-zA-Z0-9]", "-");
                 String fname = baseName;
