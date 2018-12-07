@@ -55,6 +55,12 @@ public class BundleController {
 
     public static Bundle create (Request req, Response res) throws IOException {
         ServletFileUpload sfu = new ServletFileUpload(fileItemFactory);
+        Map<String, List<FileItem>> upload_files;
+        try{
+            upload_files = sfu.parseParameterMap(req.raw());
+        } catch (Exception e){
+            throw AnalysisServerException.badRequest(ExceptionUtils.asString(e));
+        }
 
         // create the bundle
         List<FileItem> files = new ArrayList<FileItem>();
@@ -81,8 +87,8 @@ public class BundleController {
 
         final Bundle bundle = new Bundle();
         try {
-            bundle.name = "retro-gtfs";
-            bundle.regionId = "1";
+            bundle.name = upload_files.get("Name").get(0).getString("UTF-8");
+            bundle.regionId = upload_files.get("regionId").get(0).getString("UTF-8");
         } catch (Exception e) {
             throw AnalysisServerException.badRequest(ExceptionUtils.asString(e));
         }
@@ -186,6 +192,7 @@ public class BundleController {
                 bundle.east = bundleBounds.getMaxX();
                 bundle.west = bundleBounds.getMinX();
 
+                LOG.info("write bundle to cache");
                 writeManifestToCache(bundle);
                 bundle.status = Bundle.Status.DONE;
             } catch (Exception e) {
