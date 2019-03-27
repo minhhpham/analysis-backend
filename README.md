@@ -10,6 +10,8 @@ For now, the project is open source primarily to prevent vendor lock-in for our 
 planning and decision making processes. It is likely that over time the system will become easier to deploy by third 
 parties, but we do not plan to provide technical support for such deployments.
 
+**Note**: This modified version would look for a GTFS package in the main directory (analysis-backend/gtfs.zip) instead of getting the GTFS package from user upload. This is to prepare for an integration between [Retro-GTFS](https://github.com/CUTR-at-USF/retro-gtfs/tree/GTFS-Realtime) and Conveyal Analysis where Retro-GTFS results, which are saved on disk, would be loaded automatically to Conveyal Analysis.
+
 ## Configuration
 
 Conveyal Analysis can be run locally (e.g. on your laptop) or on Amazon Web Services EC2 instances, depending on the 
